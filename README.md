@@ -29,4 +29,4 @@ All scripts stored here, were written by [unkn0wnAPI](https://github.com/unkn0wn
 
 ## License
 
-This project is licensed under the [MIT](LICENSE.md) License.
+This project is licensed under the [MIT](LICENSE) License.
