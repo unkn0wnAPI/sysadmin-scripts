@@ -10,9 +10,9 @@ The scripts is very basics and does not required additional software/packages (o
 
 Tools and elements required to successfully use the script:
 
-- Windows Server (with ADDS installed and configured);
-- Windows (or Linux) machine which will generate the batch script;
-- [Python 3](https://www.python.org/) installed on the machine used for generation.
+* Windows Server (with ADDS installed and configured);
+* Windows (or Linux) machine which will generate the batch script;
+* [Python 3](https://www.python.org/) installed on the machine used for generation.
 
 ## Configuration
 
