@@ -9,10 +9,10 @@
 #
 ## Configuration
 #
-server_user = "" # Name of the main administrator user
-reflector_region = "" # ArchLinux mirror region
-zerotier_network_id = "" # Auto-join given zerotier network
-additional_pkgs = "lolcat zsh zsh-autosuggestions zsh-syntax-highlighting" # Additional user packages you wish to install
+server_user="" # Name of the main administrator user
+reflector_region="" # ArchLinux mirror region
+zerotier_network_id="" # Auto-join given zerotier network
+additional_pkgs="lolcat zsh zsh-autosuggestions zsh-syntax-highlighting" # Additional user packages you wish to install
 
 #
 ## Script Start point
