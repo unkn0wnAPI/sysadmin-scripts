@@ -2,7 +2,7 @@
 
 #
 ## Script Name: Git Repositories Auto Sync
-## Author:      unkn0wnAPI [github.com/unkn0wnAPI]
+## Author:      unkn0wnAPI [https://github.com/unkn0wnAPI]
 ## Information: Allows to sync git repositories manually or automatically (using cronjob)
 #
 

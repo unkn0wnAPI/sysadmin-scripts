@@ -2,7 +2,7 @@
 
 #
 ## Script Name: docker-compose Utilities
-## Author:      unkn0wnAPI [github.com/unkn0wnAPI]
+## Author:      unkn0wnAPI [https://github.com/unkn0wnAPI]
 ## Information: Automates certain docker-compose actions
 #
 
