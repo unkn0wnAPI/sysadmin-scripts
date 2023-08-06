@@ -62,8 +62,8 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 
 echo "===Core Services Configuration==="
 echo "[PART 1/5] - Zerotier"
-sudo zerotier-cli join $zerotier_network_id
 sudo systemctl enable zerotier-one.service --now
+sudo zerotier-cli join $zerotier_network_id
 
 echo "[PART 2/5] - Reflector"
 sudo reflector -c $reflector_region -p 'https,rsync' --delay 12 --sort rate --save /etc/pacman.d/mirrorlist
@@ -81,8 +81,6 @@ echo "======Automated Server Deployment was Successful======"
 echo "===Manual Configuration==="
 echo "Services to start after restoring configuration: "
 echo " - ZFS => ZFS Scrub timer for RAID arrays"
-echo "Missing configuration files:"
-echo " - root => /root/.local/share; /root/.vim"
-echo " - docker => /mnt/data/docker"
-echo " - User Configs => $HOME/.config; $HOME/.local/share; $HOME/.ssh; $HOME/.zshrc"
-echo " - Service Configs => /etc/samba; /etc/ssh/sshd_config; /etc/motd; /etc/vimrc"
+echo "Possible missing configuration files:"
+echo " - Docker container files"
+echo " - Service configurations"
