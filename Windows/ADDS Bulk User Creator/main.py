@@ -1,6 +1,6 @@
 #
 ## Script Name: ADDS Bulk User Creator
-## Author:      unkn0wnAPI [github.com/unkn0wnAPI]
+## Author:      unkn0wnAPI [https://github.com/unkn0wnAPI]
 ## Information: Creates script to add/remove users from Windows Server Active Directory (Tested on Windows Server 2016)
 #
 
