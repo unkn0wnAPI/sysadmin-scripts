@@ -4,7 +4,7 @@ This is a script that automates the task of merging separate video & audio files
 
 ## Getting Started
 
-The scripts is very basics and does not required additional software/packages (other than the ones that are stated in the [Prerequisites](#prerequisites)).
+The scripts requires specific software and/or packages (See [Prerequisites](#prerequisites) for more information).
 
 ### Prerequisites
 

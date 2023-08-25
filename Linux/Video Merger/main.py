@@ -9,7 +9,8 @@
 #
 ## Imports
 #
-import argparse, os
+import argparse
+import os
 
 #
 ## Functions
