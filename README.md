@@ -14,7 +14,7 @@ This github repository is divided into three categories: `Linux`, `Windows` and 
 
 ## Usage
 
-To run the scripts from this repository, you'll need [Git](https://git-scm.com/) installed on the machine. After installing git, you need to clone this repository by using the following commands from the command line:
+To run the scripts from this repository, you'll need [Git](https://git-scm.com/) installed on the machine. After installing git, you need to clone this repository by using the following commands:
 
 ```bash
 # Clone this repository
