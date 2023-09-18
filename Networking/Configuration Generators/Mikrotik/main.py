@@ -1,7 +1,7 @@
 #
 ## Script Name: Mikrotik Configuration Generator
 ## Author:      unkn0wnAPI [https://github.com/unkn0wnAPI]
-## Information: Script
+## Information: Semi-configurable Mikrotik Configuration Generator
 #
 
 #
