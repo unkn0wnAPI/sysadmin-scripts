@@ -21,7 +21,6 @@ INTERFACE_CONFS = {
     2: { "interface": "ether2", "int_list_name": "MGMT", "int_comment": "MGMT Interface", "network": "10.0.0.1/16" },
     3: { "interface": "ether3", "int_list_name": "LAN", "int_comment": "LAN1 Interface", "network": "10.1.0.1/16" },
     4: { "interface": "ether4", "int_list_name": "LAN", "int_comment": "LAN2 Interface", "network": "10.2.0.1/16" },
-    5: { "interface": "ether5", "int_list_name": "LAN", "int_comment": "LAN3 Interface", "network": "10.3.0.1/16" },
 }
 
 ## IP Configuration
@@ -50,18 +49,18 @@ DHCP_LAN_CONFIGS = {
     # ID Pool Name                 IP Range                              INT                    Network Params [Network, DNS Server, Gateway]
     1: { "pool_name": 'dhcp_lan1', "ip_range": '10.1.0.10-10.1.255.254', "interface": 'ether3', "network_params": ["10.1.0.0/16", "10.1.0.1", "10.1.0.1"] },
     2: { "pool_name": 'dhcp_lan2', "ip_range": '10.2.0.10-10.2.255.254', "interface": 'ether4', "network_params": ["10.2.0.0/16", "10.2.0.1", "10.2.0.1"] },
-    3: { "pool_name": 'dhcp_lan3', "ip_range": '10.3.0.10-10.3.255.254', "interface": 'ether5', "network_params": ["10.3.0.0/16", "10.3.0.1", "10.3.0.1"] },
 } # TODO: Automatic DHCP Configuration generator
 
 ## Security
 # Services
 ROS_DISABLED_SERVICES = ['telnet', 'ftp', 'www-ssl', 'api', 'www']
+ROS_LIMIT_WINBOX_TO_MGMT_INT = False
 ROS_ENABLE_BANDWITH_SERVER = False
 ROS_ENABLE_PROXY = False
 ROS_ENABLE_SOCKS = False
 ROS_ENABLE_DDNS = False
 ROS_HIDE_PIN = True 
-ROS_SSH_PORT = 4444
+ROS_SSH_PORT = 22
 
 #
 ## Functions
@@ -164,9 +163,10 @@ def gen_ossec() -> list:
     output = []
 
     # Winbox connectivity
-    output.append(f'/tool mac-server set allowed-interface-list={INTERFACE_CONFS[2]["int_list_name"]}')
-    output.append(f'/tool mac-server mac-winbox set allowed-interface-list={INTERFACE_CONFS[2]["int_list_name"]}')
-    output.append(f'/ip neighbor discovery-settings set discover-interface-list={INTERFACE_CONFS[2]["int_list_name"]}')
+    if ROS_LIMIT_WINBOX_TO_MGMT_INT:
+        output.append(f'/tool mac-server set allowed-interface-list={INTERFACE_CONFS[2]["int_list_name"]}')
+        output.append(f'/tool mac-server mac-winbox set allowed-interface-list={INTERFACE_CONFS[2]["int_list_name"]}')
+        output.append(f'/ip neighbor discovery-settings set discover-interface-list={INTERFACE_CONFS[2]["int_list_name"]}')
 
     # ROS Services
     output.append(f'/ip service disable {",".join(ROS_DISABLED_SERVICES)}')
