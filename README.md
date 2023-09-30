@@ -9,7 +9,7 @@ This github repository is divided into three categories: `Linux`, `Windows` and 
 **Short explanation for each respective category:**
 
 * `Windows` category holds scripts and tools to be used on Windows Platform (Mostly Windows Server);
-* `Networking` category holds scripts to automate network appliances deployment (like MikroTik Devices);
+* `Networking` category holds scripts to automate network appliances configuration (like MikroTik Devices);
 * `Linux` category holds scripts and tools to be used on Linux systems (Some script may work only on selected platforms).
 
 ## Usage
