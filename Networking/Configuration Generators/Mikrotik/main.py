@@ -46,10 +46,26 @@ FIREWALL_ADVANCED_PROTECTION = False
 
 ## DHCP Server
 DHCP_LAN_CONFIGS = {
-    # ID Pool Name                 IP Range                              INT                    Network Params [Network, DNS Server, Gateway]
-    1: { "pool_name": 'dhcp_lan1', "ip_range": '10.1.0.10-10.1.255.254', "interface": 'ether3', "network_params": ["10.1.0.0/16", "10.1.0.1", "10.1.0.1"] },
-    2: { "pool_name": 'dhcp_lan2', "ip_range": '10.2.0.10-10.2.255.254', "interface": 'ether4', "network_params": ["10.2.0.0/16", "10.2.0.1", "10.2.0.1"] },
+    # ID Pool Name                 IP Range                              INT                    Network Params [Network, DNS Server, Gateway, Domain (Used for static DNS entries)]
+    1: { "pool_name": 'dhcp_lan1', "ip_range": '10.1.0.10-10.1.255.254', "interface": 'ether3', "network_params": ["10.1.0.0/16", "10.1.0.1", "10.1.0.1", ""] },
+    2: { "pool_name": 'dhcp_lan2', "ip_range": '10.2.0.10-10.2.255.254', "interface": 'ether4', "network_params": ["10.2.0.0/16", "10.2.0.1", "10.2.0.1", ""] },
 } # TODO: Automatic DHCP Configuration generator
+
+CREATE_STATIC_DNS_ENTRIES = False
+DHCP_STATIC_DNS_ENTRIES = {
+    #    DNS Address    TTL          Entry Comment  Entry Type  Entry Specific Data
+    1: { "address": '', "ttl": '1d', 'comment': '', "type": '', "data": []}
+}
+# WARNING! Each DNS entry type has its own entry elements, you need to specify them manually in CORRECT ORDER in the data array
+# DNS Entry Data Order:
+#  - A/AAAA: "data": ["Device IP Address"]
+#  - CNAME: "data": ["Service CNAME"]
+#  - FWD: "data": ["Forward IP Address"]
+#  - MX: "data": ["MX Preference", "MX Exchange IP Address/Domain"]
+#  - NS: "data": ["NS IP Address/Domain"]
+#  - NXDOMAIN: "data": []
+#  - SRV: "data": ["SRV Priority", "Srv Weight", "SRV Port", "SRV Target]
+#  - TXT: "data": ["Text"]
 
 ## Security
 # Services
@@ -91,7 +107,6 @@ def gen_network() -> list:
         output.append(f'/ip address add address={WAN_STATIC_CONFS["address"]} interface=ether1')
         output.append(f'/ip route add gateway={WAN_STATIC_CONFS["gateway"]}')
         output.append(f'/ip dns set servers={",".join(WAN_STATIC_CONFS["dns-servers"])}')
-        output.append(f'/ip dns set allow-remote-requests=yes')
     
     if UPNP_ENABLED:
         output.append(f'/ip upnp set enabled=yes')
@@ -109,7 +124,7 @@ def gen_firewall() -> list:
         if conf["network"] != None:
             int_list.append(conf["network"])
     
-    if FIREWALL_INT_SEPARATION:
+    if FIREWALL_INT_SEPARATION and len(int_list) > 1:
         for pair in permutations(int_list, 2):
             output.append(f'/ip firewall filter add chain=forward src-address={pair[0]} dst-address={pair[1]} action=drop comment="Block {pair[0]}<->{pair[1]}"')
 
@@ -117,7 +132,7 @@ def gen_firewall() -> list:
     output.append('/ip firewall filter add chain=forward action=fasttrack-connection connection-state=established,related comment="Fast-track for established,related";')
     output.append('/ip firewall filter add chain=forward action=accept connection-state=established,related comment="Accept established,related";')
     output.append('/ip firewall filter add chain=forward action=drop connection-state=new connection-nat-state=!dstnat in-interface=ether1 comment="Drop access to clients behind NAT from WAN"')
-
+    
     if FIREWALL_ADVANCED_PROTECTION:
         address_list_entries = [
         #   Address      Comment
@@ -153,9 +168,9 @@ def gen_dhcp() -> list:
     output = []
 
     for conf in DHCP_LAN_CONFIGS.values():
-        output.append(f'/ip pool add name={conf["pool-name"]} ranges={conf["ip_range"]}')
-        output.append(f'/ip dhcp-server add address-pool={conf["pool-name"]} interface={conf["interface-name"]} name={conf["pool-name"]}')
-        output.append(f'/ip dhcp-server network add address={conf["network_params"][0]} dns-server={conf["network_params"][1]} gateway={conf["network_params"][2]}')
+        output.append(f'/ip pool add name={conf["pool_name"]} ranges={conf["ip_range"]}')
+        output.append(f'/ip dhcp-server add address-pool={conf["pool_name"]} interface={conf["interface"]} name={conf["pool_name"]}')
+        output.append(f'/ip dhcp-server network add address={conf["network_params"][0]} dns-server={conf["network_params"][1]} gateway={conf["network_params"][2]} domain={conf["network_params"][3]}')
 
     return output
 
@@ -184,6 +199,46 @@ def gen_ossec() -> list:
 
     return output
 
+def gen_dns() -> list:
+    output = []
+
+    # Allow for static DNS entries defined in RouterOS & DNS Caching
+    output.append(f'/ip dns set allow-remote-requests=yes')
+
+    # Static DNS Entries
+    if CREATE_STATIC_DNS_ENTRIES:
+        for entry in DHCP_STATIC_DNS_ENTRIES.values():
+            # Python Version < 3.10 Friendly type checking
+            if entry["type"] == "A" or entry["type"] == "AAAA":
+                output.append(f'/ip dns static add name={entry["address"]} type={entry["type"]} ttl={entry["ttl"]} address={entry["data"][0]} comment="{entry["comment"]}"')
+            elif entry["type"] == "CNAME":
+                output.append(f'/ip dns static add name={entry["address"]} type={entry["type"]} ttl={entry["ttl"]} cname={entry["data"][0]} comment="{entry["comment"]}"')
+            elif entry["type"] == "FWD":
+                output.append(f'/ip dns static add name={entry["address"]} type={entry["type"]} ttl={entry["ttl"]} forward-to={entry["data"][0]} comment="{entry["comment"]}"')
+            elif entry["type"] == "MX":
+                output.append(f'/ip dns static add name={entry["address"]} type={entry["type"]} ttl={entry["ttl"]} mx-preference={entry["data"][0]} mx-exchange={entry["data"][1]} comment="{entry["comment"]}"')
+            elif entry["type"] == "NS":
+                output.append(f'/ip dns static add name={entry["address"]} type={entry["type"]} ttl={entry["ttl"]} ns={entry["data"][0]} comment="{entry["comment"]}"')
+            elif entry["type"] == "NXDOMAIN":
+                output.append(f'/ip dns static add name={entry["address"]} type={entry["type"]} ttl={entry["ttl"]} comment="{entry["comment"]}"')
+            elif entry["type"] == "SRV":
+                output.append(f'/ip dns static add name={entry["address"]} type={entry["type"]} ttl={entry["ttl"]} srv-priority={entry["data"][0]} srv-weight={entry["data"][1]} srv-port={entry["data"][2]} srv-target={entry["data"][3]} comment="{entry["comment"]}"')
+            elif entry["type"] == "TXT":
+                output.append(f'/ip dns static add name={entry["address"]} type={entry["type"]} ttl={entry["ttl"]} text={entry["data"][0]} comment="{entry["comment"]}"')
+            else:
+                print(f"Unable to create DNS entry! [Unknown entry type: {entry['type']}]")
+
+    # Block access to local DNS server from WAN Interface
+    output.append(f'/ip firewall filter add chain=input action=drop protocol=tcp in-interface=ether1 dst-port=53')
+    output.append(f'/ip firewall filter add chain=input action=drop protocol=udp in-interface=ether1 dst-port=53')
+
+    # Allow access to local DNS server from LAN interfaces
+    for conf in INTERFACE_CONFS.values():
+        if conf["network"] != None:
+            output.append(f'/ip firewall filter add chain=input action=accept protocol=tcp in-interface={conf["interface"]} dst-port=53')
+            output.append(f'/ip firewall filter add chain=input action=accept protocol=udp in-interface={conf["interface"]} dst-port=53')
+
+    return output
 #
 ## Script Start point
 #
@@ -191,6 +246,7 @@ def main():
     print("[INFO] Mikrotik configuration generator started")
     interface_confs = gen_interface()
     network_confs = gen_network()
+    dhcp_confs = gen_dhcp()
     firewall_confs = gen_firewall()
     ossec_confs = gen_ossec()
 
@@ -203,6 +259,15 @@ def main():
         config_file.write(f':put [/log info "Importing Network Configuration"]; \n')
         for conf in network_confs:
             config_file.write(f":put [{conf}]; \n")
+        
+        config_file.write(f':put [/log info "Importing DHCP Server Configuration"]; \n')
+        for conf in dhcp_confs:
+            config_file.write(f":put [{conf}]; \n")
+
+        if CREATE_STATIC_DNS_ENTRIES:
+            config_file.write(f':put [/log info "Importing DHCP Server Configuration"]; \n')
+            for conf in dhcp_confs:
+                config_file.write(f":put [{conf}]; \n")
 
         config_file.write(f':put [/log info "Importing Firewall Configuration"]; \n')
         for conf in firewall_confs:
