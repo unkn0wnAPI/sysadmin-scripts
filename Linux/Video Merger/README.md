@@ -17,7 +17,7 @@ Tools and elements required to successfully use the script:
 
 ## Configuration
 
-The script use `argparse` allows users to tweak the following script parameters:
+The script uses `argparse` allows users to tweak the following script parameters:
 
 | Script argument           | Description                                                         | Default Value |
 | ------------------------- | ------------------------------------------------------------------- | ------------- |
