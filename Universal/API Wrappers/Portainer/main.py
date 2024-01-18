@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 
 #
-## Script Name: Portainer API Utils
+## Script Name: Portainer API Updater
 ## Author:      unkn0wnAPI [https://github.com/unkn0wnAPI]
-## Information: Custom script for interfacing with Portainer Instance
+## Information: Custom script for interfacing with Portainer Instances
 #
 
 #
@@ -114,7 +114,6 @@ def check_portainer_availability() -> list:
             exit(1)
     else:
         pprint('WRN', "Skipping initial connectivity check")
-        check = None
 
 def get_instance_data() -> list:
     global REQ_HEADERS
@@ -139,9 +138,6 @@ def get_instance_data() -> list:
 
     data.append(endpoints)
     data.append(stacksList)
-
-    stacksReq = None
-    endpointReq = None
     return data
 
 #
@@ -172,11 +168,6 @@ def update_stack_containers(stacks: list, endpointId: int) -> list:
         redeployStackReq = requests.put(f"{CONFIGS.get('PORTAINER_API_ENDPOINT')}/stacks/{stack.get('StackId')}?endpointId={stacks[0].get('EndpointId')}", headers=REQ_HEADERS, data=json.dumps(data), verify=bool(CONFIGS.get("VERIFY_TLS_CERT")))
         update_logs.append({ "StackId": stack.get('StackId'), "RedeployStatus": redeployStackReq.status_code })
         
-        stopStackReq = None
-        getStackComposeReq = None
-        getStackEnvReq = None
-        redeployStackReq = None
-
     return update_logs
 
 # TODO: Implement ability to run custom script on actions
@@ -205,7 +196,7 @@ def main():
             pprint('WRN', 'Found endpoint is present in the exclusion list, skipping')
             continue
 
-        pprint('INF', f'Updating stacks on endpoint no. {endpoint.get("EndpointId")} [{endpoint.get("EndpointName")}]')
+        pprint('INF', f'Updating stacks on endpoint {endpoint.get("EndpointName")}')
         statuses = update_stack_containers(stacks=infrastructure[1], endpointId=endpoint.get('EndpointId'))
         for status in statuses:
             if status.get('RedeployStatus') == 200:
