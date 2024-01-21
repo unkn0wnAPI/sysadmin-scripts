@@ -95,7 +95,7 @@ def load_configs():
     
     REQ_HEADERS = { "X-API-Key": CONFIGS.get('PORTAINER_API_KEY'), 'Content-Type': 'application/json' }
 
-def check_portainer_availability() -> list:
+def check_portainer_availability():
     global REQ_HEADERS, CONFIGS
 
     if CONFIGS.get('SKIP_CONNECTIVITY_CHECK') == False:
@@ -170,10 +170,6 @@ def update_stack_containers(stacks: list, endpointId: int) -> list:
         
     return update_logs
 
-# TODO: Implement ability to run custom script on actions
-def run_custom_script():
-    pass
-
 #
 ## Script Start point
 #
@@ -189,7 +185,7 @@ def main():
     infrastructure = get_instance_data()
     pprint('ACT', f'Found {len(infrastructure[0])} endpoints [No. of stacks: {len(infrastructure[1])}]')
 
-    disabled_endpoints = (CONFIGS.get('SKIP_ENDPOINTS_LIST')).split(',')
+    disabled_endpoints = (str(CONFIGS.get('SKIP_ENDPOINTS_LIST')).split(','))
 
     for endpoint in infrastructure[0]:
         if endpoint.get("EndpointName") in disabled_endpoints:
