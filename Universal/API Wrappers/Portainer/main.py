@@ -150,9 +150,9 @@ def update_stack_containers(stacks: list, endpointId: int) -> list:
         if stack.get('EndpointId') != endpointId:
             continue
 
-        stopStackReq = requests.post(f"{CONFIGS.get('PORTAINER_API_ENDPOINT')}/stacks/{stack.get('StackId')}/stop?endpointId={stacks[0].get('EndpointId')}", headers=REQ_HEADERS, verify=bool(CONFIGS.get("VERIFY_TLS_CERT")))
+        stopStackReq = requests.post(f"{CONFIGS.get('PORTAINER_API_ENDPOINT')}/stacks/{stack.get('StackId')}/stop?endpointId={stack.get('EndpointId')}", headers=REQ_HEADERS, verify=bool(CONFIGS.get("VERIFY_TLS_CERT")))
 
-        getStackComposeReq = requests.get(f"{CONFIGS.get('PORTAINER_API_ENDPOINT')}/stacks/{stack.get('StackId')}/file?endpointId={stacks[0].get('EndpointId')}", headers=REQ_HEADERS, verify=CONFIGS.get("VERIFY_TLS_CERT"))
+        getStackComposeReq = requests.get(f"{CONFIGS.get('PORTAINER_API_ENDPOINT')}/stacks/{stack.get('StackId')}/file?endpointId={stack.get('EndpointId')}", headers=REQ_HEADERS, verify=CONFIGS.get("VERIFY_TLS_CERT"))
         stackCompose = getStackComposeReq.json()
 
         getStackEnvReq = requests.get(f"{CONFIGS.get('PORTAINER_API_ENDPOINT')}/stacks/{stack.get('StackId')}", headers=REQ_HEADERS, verify=bool(CONFIGS.get("VERIFY_TLS_CERT")))
@@ -165,7 +165,7 @@ def update_stack_containers(stacks: list, endpointId: int) -> list:
             "Prune": False,
             "PullImage": True
         }
-        redeployStackReq = requests.put(f"{CONFIGS.get('PORTAINER_API_ENDPOINT')}/stacks/{stack.get('StackId')}?endpointId={stacks[0].get('EndpointId')}", headers=REQ_HEADERS, data=json.dumps(data), verify=bool(CONFIGS.get("VERIFY_TLS_CERT")))
+        redeployStackReq = requests.put(f"{CONFIGS.get('PORTAINER_API_ENDPOINT')}/stacks/{stack.get('StackId')}?endpointId={stack.get('EndpointId')}", headers=REQ_HEADERS, data=json.dumps(data), verify=bool(CONFIGS.get("VERIFY_TLS_CERT")))
         update_logs.append({ "StackId": stack.get('StackId'), "RedeployStatus": redeployStackReq.status_code })
         
     return update_logs
