@@ -20,7 +20,7 @@ additional_pkgs="lolcat zsh zsh-autosuggestions zsh-syntax-highlighting" # Addit
 echo "======Automated Archlinux Server Deployment======"
 echo "===Packages Installation==="
 echo "[PART 1/5] - System Packages"
-sudo pacman -S --needed --noconfirm linux-lts-headers pacman-contrib base-devel dmidecode dmraid ntfs-3g rsync rebuild-detector dkms amd-ucode &>/dev/null
+sudo pacman -S --needed --noconfirm linux-lts-headers pacman-contrib base-devel dmidecode dmraid rsync rebuild-detector dkms amd-ucode &>/dev/null
 
 echo "[PART 2/5] - Services"
 sudo pacman -S --needed --noconfirm docker docker-compose samba zerotier-one openssh &>/dev/null
@@ -29,7 +29,7 @@ echo "[PART 3/5] - Archiving & Compression"
 sudo pacman -S --needed --noconfirm tar bzip2 unrar gzip unzip zip p7zip &>/dev/null
 
 echo "[PART 4/5] - User Packages"
-sudo pacman -S --needed --noconfirm exa neovim reflector rustup speedtest-cli trash-cli git dos2unix smbclient screen iperf3 &>/dev/null
+sudo pacman -S --needed --noconfirm eza neovim reflector rustup speedtest-cli trash-cli git dos2unix smbclient screen iperf3 &>/dev/null
 
 echo "[PART 5/5] - Additional User Packages"
 sudo pacman -S --needed --noconfirm $additional_pkgs &>/dev/null
