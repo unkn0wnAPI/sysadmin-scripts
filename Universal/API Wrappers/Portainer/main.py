@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 
 #
-## Script Name: Portainer API Updater
+## Script Name: Portainer Updater
 ## Author:      unkn0wnAPI [https://github.com/unkn0wnAPI]
-## Information: Custom script for interfacing with Portainer Instances
+## Information: Automated script that updates your Portainer stacks for you
 #
 
 #
@@ -23,16 +23,6 @@ REQ_HEADERS = {}
 #
 ## Core Functions
 #
-def app_notification(mode: str):
-    if mode == 'in':
-        print('####################################')
-        print(('Portainer Agent - Version: 1.0').center(36))
-        print(('Written by: unkn0wnAPI').center(36))
-        print((f'Time: {datetime.now().strftime("%d/%m/%Y - %H:%M:%S")}').center(36))
-        print('####################################\n')
-    elif mode == 'out':
-        print(F'\n{F.LIGHTMAGENTA_EX}Part of sysadmin-scripts Github Repository [https://github.com/unkn0wnAPI/sysadmin-scripts]{S.RESET_ALL}\n')
-
 def pprint(severity: str, message: str):
     if severity == "INF":
         print(f"{F.LIGHTBLUE_EX}[INF] {message}{S.RESET_ALL}")
@@ -46,9 +36,9 @@ def pprint(severity: str, message: str):
         print(f"{message}")
 
 def init_arg_parse():
-    args = argparse.ArgumentParser(description=f'Custom script to manage Portainer instance', epilog="Written by unkn0wnAPI, part of sysadmin-scripts [https://github.com/unkn0wnapi/sysadmin-scripts]")
+    args = argparse.ArgumentParser(description=f'Automated script that updates your Portainer stacks for you', epilog="Written by unkn0wnAPI, part of sysadmin-scripts [https://github.com/unkn0wnapi/sysadmin-scripts]")
     args.add_argument('--no-env', '-ne', action='store_true', dest='noenv', help='Don\'t load variables from .env file')
-    args.add_argument('--endpoint', '-e', action='store', dest="endpoint", default='', help='Portainer instance endpoint (either IP or URL, which is accessible)')
+    args.add_argument('--endpoint', '-e', action='store', dest="endpoint", default='', help='Portainer instance endpoint (IP or URL)')
     args.add_argument('--api-key', '-k', action='store', dest='key', default='', help='Portainer API key used to authenticate scripts actions')
     args.add_argument('--skip-endpoints', '-se', action='store', default='', dest='skip_endpoints', help='List of endpoint names that will be excluded during updates (Delimiter: ",")')
     args.add_argument('--unsafe-tls', '-t', action='store_false', dest='unsafe_tls', help='Don\'t verify portainer TLS certificate')
@@ -176,8 +166,6 @@ def update_stack_containers(stacks: list, endpointId: int) -> list:
 def main():
     global CONFIGS
     
-    app_notification('in')
-
     load_configs()
     check_portainer_availability()
     
@@ -200,7 +188,7 @@ def main():
             else:
                 pprint('ERR', f"Stack no. {status.get('StackId')} failed to update")
     
-    app_notification('out')
+    print(F'\n{F.LIGHTMAGENTA_EX}Part of sysadmin-scripts Github Repository [https://github.com/unkn0wnAPI/sysadmin-scripts]{S.RESET_ALL}\n')
 
 
 if __name__ == "__main__":

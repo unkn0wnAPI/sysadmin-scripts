@@ -1,8 +1,2 @@
 # Don't upload .env files
 .env
-
-# Don't upload custom scripts
-scripts/
-
-# Don't upload logs
-logs/
