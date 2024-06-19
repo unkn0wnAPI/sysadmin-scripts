@@ -1,3 +1,9 @@
+#
+## Script Name: NixOS Toolbox 
+## Author:      unkn0wnAPI [https://github.com/unkn0wnAPI]
+## Information: Custom NixOS Configuration for use in GNS3 environments.
+#
+
 { config, lib, pkgs, ... }:
 
 {
