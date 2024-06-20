@@ -6,3 +6,14 @@
 .idea/**/dictionaries
 .idea/**/shelf
 *.iws
+
+# Ignore .env files
+.env
+.env.production
+.env.staging
+
+# Don't upload python-venv folders
+venv
+
+# PyInfra Specific excludes
+/**/PyInfra/**/inventory.py
