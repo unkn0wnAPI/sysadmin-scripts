@@ -1,6 +1,6 @@
 server_config = [
     (
-        "tartarus-dev", {
+        "server", {
             "MIRROR_REGION": "",
             "ZEROTIER_NETWORK_ID": ""
         }
