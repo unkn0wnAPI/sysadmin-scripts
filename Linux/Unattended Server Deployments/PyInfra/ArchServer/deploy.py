@@ -13,10 +13,8 @@ from pyinfra.facts.server import User
 from pyinfra.operations import pacman, server, git, systemd
 
 #
-## Configuration
+## Configuration is done using inventory.py
 #
-MIRROR_REGION="Poland"
-ZEROTIER_NETWORK_ID=""
 
 #
 ## PyInfra Functions
@@ -38,7 +36,7 @@ def prepare_pacman():
 
     server.shell(
         name = "Updating arch mirrors",
-        commands = [f"reflector -c {MIRROR_REGION} -p https,rsync --delay 12 --sort rate --save /etc/pacman.d/mirrorlist"],
+        commands = [f"reflector -c {host.data.get("MIRROR_REGION")} -p https,rsync --delay 12 --sort rate --save /etc/pacman.d/mirrorlist"],
         _sudo = True
     )
 
@@ -130,31 +128,23 @@ def preparing_aur_support():
     )
 
     server.shell(
-        name = "Replacing paru with paru-bin",
-        commands = ["paru -S paru-bin"],
-        _stdin = ["y"]
-    )
-
-    pacman.packages(
-        name = "Removing paru-debug",
-        packages = ["paru-debug"],
-        present = False,
-        update = False,
-        _sudo = True,
+        name = "Removing `paru-debug` package",
+        commands = ["pacman -R paru-debug --noconfirm"],
+        _sudo = True
     )
 
 @deploy("Package Management (AUR)")
 def install_aur_packages():
     server.shell(
         name = "Installing AUR packages",
-        commands = ["paru -S --noconfirm --cleanafter autojump mkinitcpio-firmware"],
+        commands = ["paru -S --noconfirm --cleanafter autojump mkinitcpio-firmware telegraf-bin"],
     )
 
 @deploy("User Configuration")
 def user_configuration():
     server.shell(
         name = "Changing shell to ZSH",
-        commands = [f"chsh -s /usr/bin/zsh {ZEROTIER_NETWORK_ID}"],
+        commands = [f"chsh -s /usr/bin/zsh {host.get_fact(User)}"],
         _sudo = True
     )
 
@@ -162,7 +152,7 @@ def user_configuration():
 def service_configuration():
     server.shell(
         name = "Joining Zerotier network",
-        commands = [f"zerotier-cli join {host.get_fact(User)}"],
+        commands = [f"zerotier-cli join {host.data.get("ZEROTIER_NETWORK_ID")}"],
         _sudo = True
     )
 
@@ -217,7 +207,8 @@ def system_services():
         name = "Enabling Telegraf service",
         service = "telegraf.service",
         running = True,
-        enabled = True
+        enabled = True,
+        _sudo = True
     )
 
 @deploy("Deploy Cleanup")
@@ -233,14 +224,21 @@ def session_cleanup():
         commands = [f"rm /home/{host.get_fact(User)}/paru -r"],
         _sudo = True
     )
+    
+    server.shell(
+        name = "Removing backups from `/`",
+        commands = ["rm *.tgz"],
+        _sudo = True
+    )
 
 #
-## Function start aggregators
+## Deployment execution tree
 #
 def main():
     prepare_pacman()
     install_packages()
     preparing_aur_support()
+    install_aur_packages()
     user_configuration()
     system_services()
     service_configuration()

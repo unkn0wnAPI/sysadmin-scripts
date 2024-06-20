@@ -1,10 +1,19 @@
+server_config = [
+    (
+        "tartarus-dev", {
+            "MIRROR_REGION": "",
+            "ZEROTIER_NETWORK_ID": ""
+        }
+    )
+]
+
 inventory = [
     (
-        "alpine", {
-            "ssh_hostname": "ip_or_hostname",
-            "ssh_port": "22",
-            "ssh_user": "username",
-            "ssh_password": "password"
+        "server", {
+            "ssh_hostname": "",
+            "ssh_port": "",
+            "ssh_user": "",
+            "ssh_password": ""
         }
     )
 ]
