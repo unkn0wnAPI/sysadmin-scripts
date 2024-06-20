@@ -1,0 +1,10 @@
+inventory = [
+    (
+        "alpine", {
+            "ssh_hostname": "ip_or_hostname",
+            "ssh_port": "22",
+            "ssh_user": "username",
+            "ssh_password": "password"
+        }
+    )
+]
