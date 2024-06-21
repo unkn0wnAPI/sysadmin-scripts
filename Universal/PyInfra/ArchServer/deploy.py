@@ -51,7 +51,7 @@ def install_packages():
         name = "Installing system packages",
         packages = ["linux-lts-headers", "pacman-contrib", "base-devel", "dmidecode", "dkms", "amd-ucode", 
                     "linux-firmware", "lm_sensors", "curl", "e2fsprogs", "exfatprogs", "iproute2", "mtr",
-                    "lsof", "smartmontools", "udisks2", "dosfstools"],
+                    "lsof", "smartmontools", "udisks2", "dosfstools", "less"],
         present = True,
         update = False,
         _sudo = True,
@@ -102,6 +102,12 @@ def install_packages():
 
 @deploy("AUR Configuration Support")
 def preparing_aur_support():
+    server.shell(
+        name = "Fixing ownership of the `.local` user folder",
+        commands = [f"chown {host.get_fact(User)}:{host.get_fact(User)} /home/{host.get_fact(User)}/.local -R"],
+        _sudo = True
+    )
+
     server.shell(
         name = "Installing rust toolchain",
         commands = ["rustup default stable"],
@@ -154,11 +160,6 @@ def service_configuration():
         name = "Joining Zerotier network",
         commands = [f"zerotier-cli join {host.data.get("ZEROTIER_NETWORK_ID")}"],
         _sudo = True
-    )
-
-    server.shell(
-        name = "Installing oh-my-zsh",
-        commands = [f"sh -c $(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh) --unattended"],
     )
 
 @deploy("System service management")
@@ -222,12 +223,6 @@ def session_cleanup():
     server.shell(
         name = "Removing paru-src leftovers",
         commands = [f"rm /home/{host.get_fact(User)}/paru -r"],
-        _sudo = True
-    )
-    
-    server.shell(
-        name = "Removing backups from `/`",
-        commands = ["rm *.tgz"],
         _sudo = True
     )
 
