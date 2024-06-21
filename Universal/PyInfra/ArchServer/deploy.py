@@ -94,7 +94,7 @@ def install_packages():
         name = "Installing User packages",
         packages = ["eza", "neovim", "rustup", "speedtest-cli", "trash-cli", "git", "dos2unix", "screen", "iperf3",
                     "lolcat", "zsh", "zsh-autosuggestions", "zsh-syntax-highlighting", "beep", "ffmpeg", "influx-cli",
-                    "speedtest-cli", "uwufetch", "yt-dlp"],
+                    "speedtest-cli", "uwufetch", "yt-dlp", "duf"],
         present = True,
         update = False,
         _sudo = True,
