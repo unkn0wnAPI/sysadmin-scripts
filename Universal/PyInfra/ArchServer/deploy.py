@@ -19,63 +19,60 @@ from pyinfra.operations import pacman, server, git, systemd
 #
 ## PyInfra Functions
 #
-@deploy("Pacman mirror preparation")
+@deploy("Initial pacman Operations")
 def prepare_pacman():
-    pacman.update(
-        name = "Updating pacman repositories",
-        _sudo = True
-    )
-
     pacman.packages(
-        name = "Installing bootstrap packages",
+        name = "Installing initial packages",
         packages = ["archlinux-keyring", "rsync", "rebuild-detector", "reflector"],
         present = True,
-        update = False,
+        update = True,
         _sudo = True,
     )
 
     server.shell(
-        name = "Updating arch mirrors",
+        name = "Changing pacman mirrors to the fastest available in the specified region",
         commands = [f"reflector -c {host.data.get("MIRROR_REGION")} -p https,rsync --delay 12 --sort rate --save /etc/pacman.d/mirrorlist"],
         _sudo = True
     )
 
     pacman.update(
-        name = "Updating newly synced pacman repositories",
+        name = "Syncing local mirror cache with remote sources",
         _sudo = True
     )
 
-@deploy("Package Management")
+@deploy("Packages Installation")
 def install_packages():
     pacman.packages(
-        name = "Installing system packages",
-        packages = ["linux-lts-headers", "pacman-contrib", "base-devel", "dmidecode", "dkms", "amd-ucode", 
-                    "linux-firmware", "lm_sensors", "curl", "e2fsprogs", "exfatprogs", "iproute2", "mtr",
-                    "lsof", "smartmontools", "udisks2", "dosfstools", "less", "wget"],
+        name = "System",
+        packages = ["linux-lts-headers", "pacman-contrib", "base-devel", "dmidecode", 
+                    "dkms", "amd-ucode", "linux-firmware", "lm_sensors", "curl", 
+                    "e2fsprogs", "exfatprogs", "iproute2", "mtr", "lsof", "smartmontools", 
+                    "udisks2", "dosfstools", "less", "wget"],
         present = True,
         update = False,
         _sudo = True,
     )
 
     pacman.packages(
-        name = "Installing AMDGPU drivers",
-        packages = ["mesa", "xf86-video-amdgpu", "vulkan-radeon", "libva-mesa-driver", "mesa-vdpau", "nvtop"],
+        name = "AMD APU/GPU",
+        packages = ["mesa", "xf86-video-amdgpu", "vulkan-radeon", "libva-mesa-driver",
+                     "mesa-vdpau", "nvtop"],
         present = True,
         update = False,
         _sudo = True,
     )
 
     pacman.packages(
-        name = "Installing Services packages",
-        packages = ["docker", "docker-compose", "samba", "zerotier-one", "openssh", "clamav", 
-                    "mariadb-clients", "openldap", "smbclient", "vsftpd"],
+        name = "Services",
+        packages = ["docker", "docker-compose", "samba", "zerotier-one", "openssh", 
+                    "clamav", "mariadb-clients", "openldap", "smbclient", "vsftpd"],
         present = True,
         update = False,
         _sudo = True,
     )
 
     pacman.packages(
-        name = "Installing Archiving & Compression packages",
+        name = "Archiving & Compression",
         packages = ["tar", "bzip2", "unrar", "gzip", "unzip", "zip", "p7zip"],
         present = True,
         update = False,
@@ -83,24 +80,25 @@ def install_packages():
     )
 
     pacman.packages(
-        name = "Installing Runners & SDK packages",
-        packages = ["jre17-openjdk-headless", "jre21-openjdk-headless", "python"],
+        name = "Code Runtime",
+        packages = ["jre17-openjdk-headless", "jre21-openjdk-headless", "python", "rustup"],
         present = True,
         update = False,
         _sudo = True,
     )
 
     pacman.packages(
-        name = "Installing User packages",
-        packages = ["eza", "neovim", "rustup", "trash-cli", "git", "dos2unix", "screen", "iperf3",
-                    "lolcat", "zsh", "zsh-autosuggestions", "zsh-syntax-highlighting", "beep", "ffmpeg", "influx-cli",
-                    "speedtest-cli", "uwufetch", "yt-dlp", "duf"],
+        name = "User Specific",
+        packages = ["eza", "neovim", "speedtest-cli", "trash-cli", "git", 
+                    "dos2unix", "screen", "iperf3","lolcat", "zsh", "zsh-autosuggestions", 
+                    "zsh-syntax-highlighting", "beep", "ffmpeg", "influx-cli","speedtest-cli", 
+                    "uwufetch", "yt-dlp", "duf"],
         present = True,
         update = False,
         _sudo = True,
     )
 
-@deploy("AUR Configuration Support")
+@deploy("AUR Integration")
 def preparing_aur_support():
     server.shell(
         name = "Fixing ownership of the `.local` user folder",
@@ -114,7 +112,7 @@ def preparing_aur_support():
     )
 
     git.repo(
-        name = "Downloading paru from Github",
+        name = "Downloading `paru` from Github",
         src = "https://aur.archlinux.org/paru.git",
         dest = f"/home/{host.get_fact(User)}/paru",
         branch = "master",
@@ -123,13 +121,13 @@ def preparing_aur_support():
     )
 
     server.shell(
-        name = "Bypassing `sudo: a terminal is required to read the password` error",
+        name = "Bypassing `sudo: a terminal is required to read the password`",
         commands = [f"echo '{host.get_fact(User)} ALL = NOPASSWD: /usr/bin/pacman' >> /etc/sudoers"],
         _sudo = True
     )
 
     server.shell(
-        name = "Building paru from source",
+        name = "Building `paru` from source",
         commands = [f"cd /home/{host.get_fact(User)}/paru; makepkg -sci --noconfirm"]
     )
 
@@ -139,14 +137,19 @@ def preparing_aur_support():
         _sudo = True
     )
 
-@deploy("Package Management (AUR)")
+@deploy("Packages Installation (AUR)")
 def install_aur_packages():
     server.shell(
-        name = "Installing AUR packages",
-        commands = ["paru -S --noconfirm --cleanafter autojump mkinitcpio-firmware telegraf-bin"],
+        name = "Services & Firmware",
+        commands = ["paru -S --noconfirm --cleanafter mkinitcpio-firmware telegraf-bin"],
     )
 
-@deploy("User Configuration")
+    server.shell(
+        name = "User Specific",
+        commands = ["paru -S --noconfirm --cleanafter autojump"],
+    )
+
+@deploy("User Environment Configuration")
 def user_configuration():
     server.shell(
         name = "Changing shell to ZSH",
@@ -154,7 +157,7 @@ def user_configuration():
         _sudo = True
     )
 
-@deploy("Service Configuration")
+@deploy("Service Preparation")
 def service_configuration():
     server.shell(
         name = "Joining Zerotier network",
@@ -162,10 +165,10 @@ def service_configuration():
         _sudo = True
     )
 
-@deploy("System service management")
+@deploy("System Configuration")
 def system_services():
     systemd.service(
-        name = "Enabling SSH service",
+        name = "Enabling SSH",
         service = "sshd.service",
         running = True,
         enabled = True,
@@ -181,7 +184,7 @@ def system_services():
     )
 
     systemd.service(
-        name = "Enabling SMB service",
+        name = "Enabling SMB",
         service = "smb.service",
         running = True,
         enabled = True,
@@ -189,7 +192,7 @@ def system_services():
     )
 
     systemd.service(
-        name = "Enabling NMB service",
+        name = "Enabling NMB",
         service = "nmb.service",
         running = True,
         enabled = True,
@@ -197,7 +200,7 @@ def system_services():
     )
 
     systemd.service(
-        name = "Enabling Zerotier-one service",
+        name = "Enabling Zerotier",
         service = "zerotier-one.service",
         running = True,
         enabled = True,
@@ -205,32 +208,30 @@ def system_services():
     )
 
     systemd.service(
-        name = "Enabling Telegraf service",
+        name = "Enabling Telegraf",
         service = "telegraf.service",
         running = True,
         enabled = True,
         _sudo = True
     )
 
-@deploy("Post-install tasks")
-def edit_files():
-    server.shell(
-        name = "Add hostname & IP to login screen",
-        commands = ["echo -e 'Hostname: \\n \nIPv4: \4\n' >> /etc/issue"], # not tested be careful, it should work
-        _sudo = True
-    )
-
-@deploy("Deploy Cleanup")
+@deploy("Post-deployment Tasks")
 def session_cleanup():
     server.shell(
-        name = "Removing `sudo` bypass",
-        commands = [f"sed '$d' /etc/sudoers"],
+        name = "Removing sudo bypass",
+        commands = [f"sed -i '/NOPASSWD/d' /etc/sudoers"],
         _sudo = True
     )
 
     server.shell(
-        name = "Removing paru-src leftovers",
+        name = "Removing `paru-src` leftovers",
         commands = [f"rm /home/{host.get_fact(User)}/paru -r"],
+        _sudo = True
+    )
+    
+    server.shell(
+        name = "Adding hostname & IP to login screen",
+        commands = ["echo -e 'Hostname: \\n \nIPv4: \4\n' >> /etc/issue"], # not tested be careful, it should work
         _sudo = True
     )
 
