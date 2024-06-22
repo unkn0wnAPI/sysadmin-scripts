@@ -51,7 +51,7 @@ def install_packages():
         name = "Installing system packages",
         packages = ["linux-lts-headers", "pacman-contrib", "base-devel", "dmidecode", "dkms", "amd-ucode", 
                     "linux-firmware", "lm_sensors", "curl", "e2fsprogs", "exfatprogs", "iproute2", "mtr",
-                    "lsof", "smartmontools", "udisks2", "dosfstools", "less"],
+                    "lsof", "smartmontools", "udisks2", "dosfstools", "less", "wget"],
         present = True,
         update = False,
         _sudo = True,
@@ -68,7 +68,7 @@ def install_packages():
     pacman.packages(
         name = "Installing Services packages",
         packages = ["docker", "docker-compose", "samba", "zerotier-one", "openssh", "clamav", 
-                    "mariadb-clients", "openldap", "smbclient"],
+                    "mariadb-clients", "openldap", "smbclient", "vsftpd"],
         present = True,
         update = False,
         _sudo = True,
@@ -92,7 +92,7 @@ def install_packages():
 
     pacman.packages(
         name = "Installing User packages",
-        packages = ["eza", "neovim", "rustup", "speedtest-cli", "trash-cli", "git", "dos2unix", "screen", "iperf3",
+        packages = ["eza", "neovim", "rustup", "trash-cli", "git", "dos2unix", "screen", "iperf3",
                     "lolcat", "zsh", "zsh-autosuggestions", "zsh-syntax-highlighting", "beep", "ffmpeg", "influx-cli",
                     "speedtest-cli", "uwufetch", "yt-dlp", "duf"],
         present = True,
