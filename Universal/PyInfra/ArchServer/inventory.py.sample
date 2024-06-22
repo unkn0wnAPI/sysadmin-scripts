@@ -1,0 +1,19 @@
+server_config = [
+    (
+        "server", {
+            "MIRROR_REGION": "",
+            "ZEROTIER_NETWORK_ID": ""
+        }
+    )
+]
+
+inventory = [
+    (
+        "server", {
+            "ssh_hostname": "",
+            "ssh_port": "",
+            "ssh_user": "",
+            "ssh_password": ""
+        }
+    )
+]
