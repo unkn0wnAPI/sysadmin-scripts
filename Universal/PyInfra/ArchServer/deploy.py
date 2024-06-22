@@ -217,7 +217,7 @@ def system_services():
     )
 
 @deploy("Post-deployment Tasks")
-def session_cleanup():
+def deployment_cleanup():
     server.shell(
         name = "Removing sudo bypass",
         commands = [f"sed -i '/NOPASSWD/d' /etc/sudoers"],
@@ -225,14 +225,13 @@ def session_cleanup():
     )
 
     server.shell(
-        name = "Removing `paru-src` leftovers",
-        commands = [f"rm /home/{host.get_fact(User)}/paru -r"],
-        _sudo = True
-    )
-    
-    server.shell(
         name = "Adding hostname & IP to login screen",
-        commands = ["echo -e 'Hostname: \\n \nIPv4: \4\n' >> /etc/issue"], # not tested be careful, it should work
+        commands = [
+            "echo '===SERVER INFORMATION===' >> /etc/issue",
+            'printf "Hostname: \\cdx" >> /etc/issue',
+            "echo -e '\nIPv4: \\4\n' >> /etc/issue",
+            "sed -i 's/cdx/n/' /etc/issue"
+        ],
         _sudo = True
     )
 
@@ -247,8 +246,7 @@ def main():
     user_configuration()
     system_services()
     service_configuration()
-    edit_files()
-    session_cleanup()
+    deployment_cleanup()
 
 #
 ## Init Point
