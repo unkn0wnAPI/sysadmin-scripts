@@ -212,6 +212,14 @@ def system_services():
         _sudo = True
     )
 
+@deploy("Post-install tasks")
+def edit_files():
+    server.shell(
+        name = "Add hostname & IP to login screen",
+        commands = ["echo -e 'Hostname: \\n \nIPv4: \4\n' >> /etc/issue"], # not tested be careful, it should work
+        _sudo = True
+    )
+
 @deploy("Deploy Cleanup")
 def session_cleanup():
     server.shell(
@@ -237,6 +245,7 @@ def main():
     user_configuration()
     system_services()
     service_configuration()
+    edit_files()
     session_cleanup()
 
 #
