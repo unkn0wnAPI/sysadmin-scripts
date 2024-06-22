@@ -47,7 +47,7 @@ def install_packages():
         packages = ["linux-lts-headers", "pacman-contrib", "base-devel", "dmidecode", 
                     "dkms", "amd-ucode", "linux-firmware", "lm_sensors", "curl", 
                     "e2fsprogs", "exfatprogs", "iproute2", "mtr", "lsof", "smartmontools", 
-                    "udisks2", "dosfstools", "less"],
+                    "udisks2", "dosfstools", "less", "wget"],
         present = True,
         update = False,
         _sudo = True,
@@ -65,7 +65,7 @@ def install_packages():
     pacman.packages(
         name = "Services",
         packages = ["docker", "docker-compose", "samba", "zerotier-one", "openssh", 
-                    "clamav", "mariadb-clients", "openldap", "smbclient"],
+                    "clamav", "mariadb-clients", "openldap", "smbclient", "vsftpd"],
         present = True,
         update = False,
         _sudo = True,
@@ -215,7 +215,7 @@ def system_services():
         _sudo = True
     )
 
-@deploy("PyInfra Script Cleanup")
+@deploy("Post-deployment Tasks")
 def session_cleanup():
     server.shell(
         name = "Removing sudo bypass",
@@ -226,6 +226,12 @@ def session_cleanup():
     server.shell(
         name = "Removing `paru-src` leftovers",
         commands = [f"rm /home/{host.get_fact(User)}/paru -r"],
+        _sudo = True
+    )
+    
+    server.shell(
+        name = "Adding hostname & IP to login screen",
+        commands = ["echo -e 'Hostname: \\n \nIPv4: \4\n' >> /etc/issue"], # not tested be careful, it should work
         _sudo = True
     )
 
@@ -240,6 +246,7 @@ def main():
     user_configuration()
     system_services()
     service_configuration()
+    edit_files()
     session_cleanup()
 
 #
