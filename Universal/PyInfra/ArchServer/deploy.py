@@ -1,7 +1,7 @@
 #
 ## Script Name:  Unattended ArchLinux Server Deployment (PyInfra)
 ## Author:       unkn0wnAPI [https://github.com/unkn0wnAPI]
-## Contributers: Jakub Majcherski [https://github.com/majcher01]
+## Contributors: Jakub Majcherski [https://github.com/majcher01]
 ## Information:  Automation for the post-deploy server configuration tasks
 #
 
