@@ -48,7 +48,7 @@ def install_packages():
         packages = ["linux-lts-headers", "pacman-contrib", "base-devel", "dmidecode", 
                     "dkms", "amd-ucode", "linux-firmware", "lm_sensors", "curl", 
                     "e2fsprogs", "exfatprogs", "iproute2", "mtr", "lsof", "smartmontools", 
-                    "udisks2", "dosfstools", "less", "wget"],
+                    "udisks2", "dosfstools", "less", "wget", "inetutils"],
         present = True,
         update = False,
         _sudo = True,
@@ -225,10 +225,16 @@ def deployment_cleanup():
     )
 
     server.shell(
+        name = "Removing `paru-src` leftovers",
+        commands = [f"rm /home/{host.get_fact(User)}/paru -r"],
+        _sudo = True
+    )
+
+    server.shell(
         name = "Adding hostname & IP to login screen",
         commands = [
             "echo '===SERVER INFORMATION===' >> /etc/issue",
-            'printf "Hostname: \\cdx" >> /etc/issue',
+            'printf "Hostname: \\cdx" >> /etc/issue', # PyInfra changes \\n to \n (newline), this is a bypass which will be fix with `sed`
             "echo -e '\nIPv4: \\4\n' >> /etc/issue",
             "sed -i 's/cdx/n/' /etc/issue"
         ],
