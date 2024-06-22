@@ -28,6 +28,12 @@ git clone git@github.com:unkn0wnAPI/sysadmin-scripts.git
 
 All scripts stored here, were written by [unkn0wnAPI](https://github.com/unkn0wnAPI)
 
+## Contributors
+
+List of all users which contributed to this repository:
+
+* [Jakub Majcherski](https://github.com/majcher01) - PyInfra Arch Deployment
+
 ## License
 
 This project is licensed under the [MIT](LICENSE) License.
