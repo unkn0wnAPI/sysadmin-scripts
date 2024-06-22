@@ -64,3 +64,9 @@ To run this script you need to issue the following commands:
 ```properties
 pyinfra inventory.py deploy.py <additional_pyinfra_options>
 ```
+
+## Contributors
+
+List of all users which contributed to this script:
+
+* [Jakub Majcherski](https://github.com/majcher01)
