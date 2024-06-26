@@ -30,9 +30,9 @@ All scripts stored here, were written by [unkn0wnAPI](https://github.com/unkn0wn
 
 ## Contributors
 
-List of all users which contributed to this repository:
-
-* [Jakub Majcherski](https://github.com/majcher01) - PyInfra Arch Deployment
+<a href="https://github.com/unkn0wnAPI/sysadmin-scripts/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=unkn0wnAPI/sysadmin-scripts" />
+</a>
 
 ## License
 
