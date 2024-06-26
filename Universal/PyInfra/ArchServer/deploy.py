@@ -27,7 +27,7 @@ def prepare_pacman():
         packages = ["archlinux-keyring", "rsync", "rebuild-detector", "reflector"],
         present = True,
         update = True,
-        _sudo = True,
+        _sudo = True
     )
 
     server.shell(
@@ -45,31 +45,34 @@ def prepare_pacman():
 def install_packages():
     pacman.packages(
         name = "System",
-        packages = ["linux-lts-headers", "pacman-contrib", "base-devel", "dmidecode", 
-                    "dkms", "amd-ucode", "linux-firmware", "lm_sensors", "curl", 
-                    "e2fsprogs", "exfatprogs", "iproute2", "mtr", "lsof", "smartmontools", 
-                    "udisks2", "dosfstools", "less", "wget", "inetutils"],
+        packages = [
+            "linux-lts-headers", "pacman-contrib", "base-devel", "dmidecode", 
+            "dkms", "amd-ucode", "linux-firmware", "lm_sensors", "curl", 
+            "e2fsprogs", "exfatprogs", "iproute2", "mtr", "lsof", "smartmontools", 
+            "udisks2", "dosfstools", "less", "wget", "inetutils"],
         present = True,
         update = False,
-        _sudo = True,
+        _sudo = True
     )
 
     pacman.packages(
         name = "AMD APU/GPU",
-        packages = ["mesa", "xf86-video-amdgpu", "vulkan-radeon", "libva-mesa-driver",
-                     "mesa-vdpau", "nvtop"],
+        packages = [
+            "mesa", "xf86-video-amdgpu", "vulkan-radeon", "libva-mesa-driver",
+            "mesa-vdpau", "nvtop", "radeontop"],
         present = True,
         update = False,
-        _sudo = True,
+        _sudo = True
     )
 
     pacman.packages(
         name = "Services",
-        packages = ["docker", "docker-compose", "samba", "zerotier-one", "openssh", 
-                    "clamav", "mariadb-clients", "openldap", "smbclient", "vsftpd"],
+        packages = [
+            "docker", "docker-compose", "samba", "zerotier-one", "openssh", 
+            "clamav", "mariadb-clients", "openldap", "smbclient", "vsftpd"],
         present = True,
         update = False,
-        _sudo = True,
+        _sudo = True
     )
 
     pacman.packages(
@@ -77,7 +80,7 @@ def install_packages():
         packages = ["tar", "bzip2", "unrar", "gzip", "unzip", "zip", "p7zip"],
         present = True,
         update = False,
-        _sudo = True,
+        _sudo = True
     )
 
     pacman.packages(
@@ -85,18 +88,18 @@ def install_packages():
         packages = ["jre17-openjdk-headless", "jre21-openjdk-headless", "python", "rustup"],
         present = True,
         update = False,
-        _sudo = True,
+        _sudo = True
     )
 
     pacman.packages(
         name = "User Specific",
         packages = ["eza", "neovim", "speedtest-cli", "trash-cli", "git", 
-                    "dos2unix", "screen", "iperf3","lolcat", "zsh", "zsh-autosuggestions", 
-                    "zsh-syntax-highlighting", "beep", "ffmpeg", "influx-cli","speedtest-cli", 
-                    "uwufetch", "yt-dlp", "duf"],
+            "dos2unix", "screen", "iperf3","lolcat", "zsh", "zsh-autosuggestions", 
+            "zsh-syntax-highlighting", "beep", "ffmpeg", "influx-cli","speedtest-cli", 
+            "uwufetch", "yt-dlp", "duf", "htop", "ncdu"],
         present = True,
         update = False,
-        _sudo = True,
+        _sudo = True
     )
 
 @deploy("AUR Integration")
@@ -117,8 +120,7 @@ def preparing_aur_support():
         src = "https://aur.archlinux.org/paru.git",
         dest = f"/home/{host.get_fact(User)}/paru",
         branch = "master",
-        pull = True,
-        
+        pull = True
     )
 
     server.shell(
@@ -158,11 +160,23 @@ def user_configuration():
         _sudo = True
     )
 
+    server.shell(
+        name = "Joining `docker` system group",
+        commands = [f"usermod -aG docker {host.get_fact(User)}"],
+        _sudo = True
+    )
+
 @deploy("Service Preparation")
 def service_configuration():
     server.shell(
         name = "Joining Zerotier network",
         commands = [f"zerotier-cli join {host.data.get("ZEROTIER_NETWORK_ID")}"],
+        _sudo = True
+    )
+
+    server.shell(
+        name = "Enabling telegraf docker integration",
+        commands = ["usermod -aG docker telegraf"],
         _sudo = True
     )
 
@@ -216,8 +230,55 @@ def system_services():
         _sudo = True
     )
 
+    systemd.service(
+        name = "Enabling vsftpd",
+        service = "vsftpd.service",
+        running = True,
+        enabled = True,
+        _sudo = True
+    )
+
+    server.shell(
+        name = "Creating SWAP file",
+        commands = [f"mkswap -U clear --size {host.data.get("SWAPFILE_SIZE")} --file /swapfile"],
+        _sudo = True
+    )
+
+    server.shell(
+        name = "Enabling SWAP file",
+        commands = ["swapon /swapfile", "echo '/swapfile none swap defaults 0 0' >> /etc/fstab"],
+        _sudo = True
+    )
+
+    server.shell(
+        name = "Setting `LC_TIME` to user defined locale",
+        commands = [f"localectl set-locale LC_TIME={host.data.get("LC_TIME_LOCALE")}"],
+        _sudo = True
+    )
+
+    server.shell(
+        name = "Setting `net.ipv4.tcp_congestion_control` to `bbr`",
+        commands = [
+            "echo 'tcp_bbr' > /etc/modules-load.d/modules.conf", 
+            "echo 'net.core.default_qdisc=fq' > /etc/sysctl.d/bbr.conf",
+            "echo 'net.ipv4.tcp_congestion_control=bbr' >> /etc/sysctl.d/bbr.conf"],
+        _sudo = True
+    )
+
+    server.shell(
+        name = "Disabling system ability to sleep & hibernate",
+        commands = [
+            "mkdir /etc/systemd/sleep.conf.d",
+            "echo '[Sleep]' > /etc/systemd/sleep.conf.d/disable-sleep.conf", 
+            "echo 'AllowSuspend=no' >> /etc/systemd/sleep.conf.d/disable-sleep.conf",
+            "echo 'AllowHibernation=no' >> /etc/systemd/sleep.conf.d/disable-sleep.conf",
+            "echo 'AllowHybridSleep=no' >> /etc/systemd/sleep.conf.d/disable-sleep.conf",
+            "echo 'AllowSuspendThenHibernate=no' >> /etc/systemd/sleep.conf.d/disable-sleep.conf"],
+        _sudo = True
+    )
+
 @deploy("Post-deployment Tasks")
-def deployment_cleanup():
+def post_deployment():
     server.shell(
         name = "Removing sudo bypass",
         commands = [f"sed -i '/NOPASSWD/d' /etc/sudoers"],
@@ -231,13 +292,24 @@ def deployment_cleanup():
     )
 
     server.shell(
+        name = "Removing `pam_motd.so` from /etc/pam.d/system-login",
+        commands = ["cp /etc/pam.d/system-login /etc/pam.d/system-login.bak", "sed -i '/pam_motd.so/d' /etc/pam.d/system-login"],
+        _sudo = True
+    )
+
+    server.shell(
+        name = "Changing systemd-boot timeout value to 0",
+        commands = ["sed -i 's/3/0/' /boot/loader/loader.conf"],
+        _sudo = True
+    )
+
+    server.shell(
         name = "Adding hostname & IP to login screen",
         commands = [
             "echo '===SERVER INFORMATION===' >> /etc/issue",
-            'printf "Hostname: \\cdx" >> /etc/issue', # PyInfra changes \\n to \n (newline), this is a bypass which will be fix with `sed`
+            'printf "Hostname: \\cdx" >> /etc/issue', # PyInfra changes \\n to \n (newline), this is a bypass which will be fixed with `sed`
             "echo -e '\nIPv4: \\4\n' >> /etc/issue",
-            "sed -i 's/cdx/n/' /etc/issue"
-        ],
+            "sed -i 's/cdx/n/' /etc/issue"],
         _sudo = True
     )
 
@@ -252,7 +324,7 @@ def main():
     user_configuration()
     system_services()
     service_configuration()
-    deployment_cleanup()
+    post_deployment()
 
 #
 ## Init Point

@@ -2,7 +2,9 @@ server_config = [
     (
         "server", {
             "MIRROR_REGION": "",
-            "ZEROTIER_NETWORK_ID": ""
+            "ZEROTIER_NETWORK_ID": "",
+            "SWAPFILE_SIZE": "4G",
+            "LC_TIME_LOCALE": "en_US.UTF-8"
         }
     )
 ]

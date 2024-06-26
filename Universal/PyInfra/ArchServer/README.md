@@ -56,6 +56,8 @@ More configurations options and/or different ways of connecting with the target 
 | ------------------------- | ------------------------------------------------------------------------- |
 | `MIRROR_REGION`           | Sets the desired pacman mirror region                                     |
 | `ZEROTIER_NETWORK_ID`     | Sets the Zerotier network id used when configuring zerotier service       |
+| `SWAPFILE_SIZE`           | Sets the size of the system swap file (Default: 4G)                       |
+| `LC_TIME_LOCALE`          | Sets the value of the LC_TIME locale variable (Default: en_US.UTF-8)      |
 
 ## Usage
 
