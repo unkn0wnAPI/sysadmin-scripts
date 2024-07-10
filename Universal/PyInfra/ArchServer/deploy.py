@@ -95,8 +95,8 @@ def install_packages():
         name = "User Specific",
         packages = ["eza", "neovim", "speedtest-cli", "trash-cli", "git", 
             "dos2unix", "screen", "iperf3","lolcat", "zsh", "zsh-autosuggestions", 
-            "zsh-syntax-highlighting", "beep", "ffmpeg", "influx-cli","speedtest-cli", 
-            "uwufetch", "yt-dlp", "duf", "htop", "ncdu"],
+            "zsh-syntax-highlighting", "beep", "ffmpeg", "influx-cli", "uwufetch", 
+            "yt-dlp", "duf", "htop", "ncdu"],
         present = True,
         update = False,
         _sudo = True
