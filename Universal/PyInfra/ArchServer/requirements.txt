@@ -1,1 +1,1 @@
-pyinfra==2.9.2
+pyinfra==3.0
