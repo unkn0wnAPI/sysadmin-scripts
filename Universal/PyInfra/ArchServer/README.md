@@ -10,12 +10,14 @@ The scripts requires specific packages and/or software (See [Prerequisites](#pre
 
 This tool uses [Python 3](https://www.python.org) and the following python packages:
 
-* pyinfra (v2)
+* pyinfra v3 (To use this script with pyInfra v2, you are required to change `ssh_port` variable in `inventory.py` from type `int` to `string`)
 
 To easily install them on a system that allows installing packages using [pip](https://pypi.org/project/pip), you can use the following command:
 
 ```properties
 pip install -r requirements.txt
+# or
+pip install pyinfra
 ```
 
 In case you encounter the following output: `error: externally-managed-environment`, it means that your OS does not allow installation of python packages using pip.
