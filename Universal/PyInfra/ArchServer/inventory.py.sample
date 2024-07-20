@@ -13,7 +13,7 @@ inventory = [
     (
         "server", {
             "ssh_hostname": "",
-            "ssh_port": "",
+            "ssh_port": 22,
             "ssh_user": "",
             "ssh_password": ""
         }
