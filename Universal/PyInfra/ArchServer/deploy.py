@@ -46,9 +46,9 @@ def install_packages():
     pacman.packages(
         name = "System",
         packages = [
-            "linux-lts-headers", "pacman-contrib", "base-devel", "dmidecode", 
-            "dkms", "amd-ucode", "linux-firmware", "lm_sensors", "curl", 
-            "e2fsprogs", "exfatprogs", "iproute2", "mtr", "lsof", "smartmontools", 
+            "linux-lts-headers", "pacman-contrib", "base-devel", "dmidecode",
+            "dkms", "amd-ucode", "linux-firmware", "lm_sensors", "curl",
+            "e2fsprogs", "exfatprogs", "iproute2", "mtr", "lsof", "smartmontools",
             "udisks2", "dosfstools", "less", "wget", "inetutils"],
         present = True,
         update = False,
@@ -68,7 +68,7 @@ def install_packages():
     pacman.packages(
         name = "Services",
         packages = [
-            "docker", "docker-compose", "samba", "zerotier-one", "openssh", 
+            "docker", "docker-compose", "samba", "zerotier-one", "openssh",
             "clamav", "mariadb-clients", "openldap", "smbclient", "vsftpd"],
         present = True,
         update = False,
@@ -93,10 +93,10 @@ def install_packages():
 
     pacman.packages(
         name = "User Specific",
-        packages = ["eza", "neovim", "speedtest-cli", "trash-cli", "git", 
-            "dos2unix", "screen", "iperf3","lolcat", "zsh", "zsh-autosuggestions", 
-            "zsh-syntax-highlighting", "beep", "ffmpeg", "influx-cli", "uwufetch", 
-            "yt-dlp", "duf", "htop", "ncdu"],
+        packages = ["eza", "neovim", "speedtest-cli", "trash-cli", "git",
+            "dos2unix", "screen", "iperf3","lolcat", "zsh", "zsh-autosuggestions",
+            "zsh-syntax-highlighting", "beep", "ffmpeg", "influx-cli", "uwufetch",
+            "yt-dlp", "duf", "htop", "ncdu", "borg"],
         present = True,
         update = False,
         _sudo = True
@@ -259,7 +259,7 @@ def system_services():
     server.shell(
         name = "Setting `net.ipv4.tcp_congestion_control` to `bbr`",
         commands = [
-            "echo 'tcp_bbr' > /etc/modules-load.d/modules.conf", 
+            "echo 'tcp_bbr' > /etc/modules-load.d/modules.conf",
             "echo 'net.core.default_qdisc=fq' > /etc/sysctl.d/bbr.conf",
             "echo 'net.ipv4.tcp_congestion_control=bbr' >> /etc/sysctl.d/bbr.conf"],
         _sudo = True
@@ -269,7 +269,7 @@ def system_services():
         name = "Disabling system ability to sleep & hibernate",
         commands = [
             "mkdir /etc/systemd/sleep.conf.d",
-            "echo '[Sleep]' > /etc/systemd/sleep.conf.d/disable-sleep.conf", 
+            "echo '[Sleep]' > /etc/systemd/sleep.conf.d/disable-sleep.conf",
             "echo 'AllowSuspend=no' >> /etc/systemd/sleep.conf.d/disable-sleep.conf",
             "echo 'AllowHibernation=no' >> /etc/systemd/sleep.conf.d/disable-sleep.conf",
             "echo 'AllowHybridSleep=no' >> /etc/systemd/sleep.conf.d/disable-sleep.conf",
