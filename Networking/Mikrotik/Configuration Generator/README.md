@@ -2,6 +2,9 @@
 
 A handy script for quick and easy deployment of Mikrotik RouterOS Devices.  
 
+> [!NOTE]
+> The Firewall interface separation module is also available [on my site](https://unkn0wnapi.github.io/mt-fw-tool) as a Vue WebApp.
+
 ## Getting Started
 
 The scripts requires specific software and/or packages (See [Prerequisites](#prerequisites) for more information).
