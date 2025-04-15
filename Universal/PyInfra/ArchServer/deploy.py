@@ -11,7 +11,8 @@
 from pyinfra import host
 from pyinfra.api import deploy
 from pyinfra.facts.server import User
-from pyinfra.operations import pacman, server, git, systemd
+from pyinfra.facts.files import Directory
+from pyinfra.operations import pacman, server, git, systemd, files
 
 #
 ## Configuration is done using inventory.py
@@ -104,6 +105,14 @@ def install_packages():
 
 @deploy("AUR Integration")
 def preparing_aur_support():
+    files.directory(
+        name=f"Creating .local directory",
+        path=f'/home/{host.get_fact(User)}/.local',
+        present=True,
+        group=host.data.get("ssh_user"),
+        user=host.data.get("ssh_user")
+    )
+
     server.shell(
         name = "Fixing ownership of the `.local` user folder",
         commands = [f"chown {host.get_fact(User)}:{host.get_fact(User)} /home/{host.get_fact(User)}/.local -R"],
@@ -152,6 +161,11 @@ def install_aur_packages():
         commands = ["paru -S --noconfirm --cleanafter autojump"],
     )
 
+    server.shell(
+        name = "ZFS Modules",
+        commands = ["paru -S --noconfirm --cleanafter zfs-dkms zfs-utils"]
+    )
+
 @deploy("User Environment Configuration")
 def user_configuration():
     server.shell(
@@ -168,11 +182,12 @@ def user_configuration():
 
 @deploy("Service Preparation")
 def service_configuration():
-    server.shell(
-        name = "Joining Zerotier network",
-        commands = [f"zerotier-cli join {host.data.get("ZEROTIER_NETWORK_ID")}"],
-        _sudo = True
-    )
+    if host.data.get("ZEROTIER_NETWORK_ID") != "":
+        server.shell(
+            name = "Joining Zerotier network",
+            commands = [f"zerotier-cli join {host.data.get("ZEROTIER_NETWORK_ID")}"],
+            _sudo = True
+        )
 
     server.shell(
         name = "Enabling telegraf docker integration",
@@ -276,6 +291,43 @@ def system_services():
             "echo 'AllowSuspendThenHibernate=no' >> /etc/systemd/sleep.conf.d/disable-sleep.conf"],
         _sudo = True
     )
+
+    server.shell(
+        name="Add zfs to mkinitcpio.conf MODULES=() line if not present",
+        commands=[r"sed -i '/^MODULES=/ {/zfs/! s/)/ zfs)/}' /etc/mkinitcpio.conf"],
+        _sudo = True
+    )
+
+    server.shell(
+        name="Regenerate initramfs with mkinitcpio for ZFS Modules",
+        commands=["mkinitcpio -P"],
+        _sudo = True
+    )
+
+    systemd.service(
+        name = "Enabling ZFS",
+        service = "zfs.target",
+        running = True,
+        enabled = True,
+        _sudo = True
+    )
+
+    systemd.service(
+        name = "Enabling ZFS Import Scan",
+        service = "zfs-import-scan.service",
+        running = True,
+        enabled = True,
+        _sudo = True
+    )
+
+    systemd.service(
+        name = "Enabling ZFS Volume Wait",
+        service = "zfs-volume-wait.service",
+        running = True,
+        enabled = True,
+        _sudo = True
+    )
+
 
 @deploy("Post-deployment Tasks")
 def post_deployment():
