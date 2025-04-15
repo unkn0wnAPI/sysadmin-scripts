@@ -313,6 +313,22 @@ def system_services():
     )
 
     systemd.service(
+        name = "Enabling ZFS Import",
+        service = "zfs-import.target",
+        running = True,
+        enabled = True,
+        _sudo = True
+    )
+
+    systemd.service(
+        name = "Enabling ZFS Volumes",
+        service = "zfs-volumes.target",
+        running = True,
+        enabled = True,
+        _sudo = True
+    )
+
+    systemd.service(
         name = "Enabling ZFS Import Scan",
         service = "zfs-import-scan.service",
         running = True,
