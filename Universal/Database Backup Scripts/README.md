@@ -32,8 +32,8 @@ Each database backup script can be configured using the following variables:
 | Variable        | Variable Type | Description                                                                              | Is Required            |
 |-----------------|---------------|------------------------------------------------------------------------------------------|------------------------|
 | `BACKUP_DIR`    | `Path`        | Sets the root directory for backups and logs                                             | Yes                    |
-| `LOG_DIR`       | `Path`        | Sets the logs directory name (automatically populated if not specified)                  | No                     |
-| `SLACK_WEBHOOK` | `str`         | Slack WebHook URL for error notifications                                                | No (Script works without it) |
+| `LOG_DIR`       | `Path`        | Sets the logs directory name (automatically populated if not specified)                  | No (Auto Populated)    |
+| `SLACK_WEBHOOK` | `str`         | Slack WebHook URL for error notifications                                                | No (Works w/o it)      |
 | `DATABASES`     | `list[str]`   | Specifies which databases to back up (defaults to all databases if empty)                | No                     |
 | `MAX_BACKUPS`   | `int`         | Maximum number of backup files to retain                                                 | Yes                    |
 
@@ -68,7 +68,7 @@ The PostgreSQL backup script requires you to configure connection settings using
 | Variable  | Variable Type | Description                                              | Is Required    |
 |-----------|---------------|----------------------------------------------------------|----------------|
 | `PG_HOST` | `str`         | Sets the PostgreSQL server IP                            | Yes            |
-| `PG_USER` | `str`         | Sets the PostgreSQL user used to connect to the database | Auto Populated |
+| `PG_USER` | `str`         | Sets the PostgreSQL user used to connect to the database | Yes            |
 
 #### `.pgpass` Creation Guide
 
