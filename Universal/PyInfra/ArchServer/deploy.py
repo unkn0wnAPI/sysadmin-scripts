@@ -50,7 +50,7 @@ def install_packages():
             "linux-lts-headers", "pacman-contrib", "base-devel", "dmidecode",
             "dkms", "amd-ucode", "linux-firmware", "lm_sensors", "curl",
             "e2fsprogs", "exfatprogs", "iproute2", "mtr", "lsof", "smartmontools",
-            "udisks2", "dosfstools", "less", "wget", "inetutils"],
+            "udisks2", "dosfstools", "less", "wget", "inetutils", "lvm2"],
         present = True,
         update = False,
         _sudo = True
@@ -70,7 +70,7 @@ def install_packages():
         name = "Services",
         packages = [
             "docker", "docker-compose", "samba", "zerotier-one", "openssh",
-            "clamav", "mariadb-clients", "openldap", "smbclient", "vsftpd"],
+            "clamav", "mariadb-clients", "openldap", "smbclient", "vsftpd", "cronie"],
         present = True,
         update = False,
         _sudo = True
@@ -200,6 +200,22 @@ def system_services():
     systemd.service(
         name = "Enabling SSH",
         service = "sshd.service",
+        running = True,
+        enabled = True,
+        _sudo = True
+    )
+
+    systemd.service(
+        name = "Enabling LVM2 Support",
+        service = "lvm2-monitor.service",
+        running = True,
+        enabled = True,
+        _sudo = True
+    )
+
+    systemd.service(
+        name = "Enabling CRONJOBS Support",
+        service = "cronie.service",
         running = True,
         enabled = True,
         _sudo = True
