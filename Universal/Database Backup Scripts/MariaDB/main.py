@@ -9,15 +9,15 @@
 #
 ## Imports
 #
-import subprocess
-import requests
-import os
-import logging
-import socket
-import gzip
-import shutil
 from datetime import datetime
 from pathlib import Path
+import subprocess
+import requests
+import logging
+import socket
+import shutil
+import gzip
+import os
 
 #
 ## Init configuration variable
