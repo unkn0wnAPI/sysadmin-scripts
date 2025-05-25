@@ -44,6 +44,7 @@ logging.basicConfig(
 #
 def notify_slack(message):
     payload = {
+        "text": "<!channel>",
         "attachments": [
             {
                 "color": '#FF0000',
