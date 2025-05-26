@@ -13,7 +13,7 @@ The scripts requires specific packages (See [Prerequisites](#prerequisites) for 
 
 ### Prerequisites
 
-This tool uses [GNU TAR]() for compression, [Python 3](https://www.python.org/) and the following built-in packages:
+This tool uses [GNU TAR](https://www.gnu.org/software/tar/) for compression, [Python 3](https://www.python.org/) and the following built-in python3  packages:
 
 * subprocess
 * requests
