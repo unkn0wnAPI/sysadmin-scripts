@@ -22,13 +22,14 @@ import os
 #
 ## Init configuration variable
 #
-BACKUP_DIR = Path("/mnt/your_backup_directory")
-LOG_DIR = BACKUP_DIR / "logs"
-SLACK_WEBHOOK = "https://hooks.slack.com/services/your/webhook/url"
-DATABASES = ["your_db1", "your_db2"]  # Set to [] to use pg_dumpall for all DBs
-MAX_BACKUPS = 7
-PG_HOST = "localhost"  # PostgreSQL host, change if needed
-PG_USER = "postgres"  # PostgreSQL user, change if needed
+BACKUP_DIR: Path = Path("/mnt/your_backup_directory")
+LOG_DIR: Path = BACKUP_DIR / "logs"
+SLACK_WEBHOOK: str = "https://hooks.slack.com/services/your/webhook/url"
+DATABASES: list[str] = ["your_db1", "your_db2"]  # Set to [] to use pg_dumpall for all DBs
+MAX_BACKUPS: int = 7
+BACKUP_GLOBALS: bool = True  # Set to True to backup globals, False to skip
+PG_HOST: str = "localhost"  # PostgreSQL host, change if needed
+PG_USER: str = "postgres"  # PostgreSQL user, change if needed
 # The reset MUST BE SET in the .pgpass file for the user running this script
 
 #
@@ -83,14 +84,9 @@ def gzip_compression(source_path):
     return compressed_path
 
 def rotate_backups(backup_dir, hostname):
+    logging.info("Rotating PSQL backups.")
     db_backups = sorted(
         backup_dir.glob(f"{hostname}_*.sql.gz"),
-        key=os.path.getmtime,
-        reverse=True
-    )
-
-    globals_backups = sorted(
-        backup_dir.glob(f"{hostname}_*_globals.sql.gz"),
         key=os.path.getmtime,
         reverse=True
     )
@@ -102,12 +98,24 @@ def rotate_backups(backup_dir, hostname):
         except Exception as e:
             logging.error(f"Failed to delete old DB backup {old_backup}: {e}")
 
-    for old_backup in globals_backups[MAX_BACKUPS:]:
-        try:
-            old_backup.unlink()
-            logging.info(f"Deleted old globals backup: {old_backup}")
-        except Exception as e:
-            logging.error(f"Failed to delete old globals backup {old_backup}: {e}")
+    if not BACKUP_GLOBALS:
+        logging.info("Skipping globals backup rotation as per configuration.")
+        return
+    else:
+        logging.info("Rotating globals backups.")
+
+        globals_backups = sorted(
+            backup_dir.glob(f"{hostname}_*_globals.sql.gz"),
+            key=os.path.getmtime,
+            reverse=True
+        )
+
+        for old_backup in globals_backups[MAX_BACKUPS:]:
+            try:
+                old_backup.unlink()
+                logging.info(f"Deleted old globals backup: {old_backup}")
+            except Exception as e:
+                logging.error(f"Failed to delete old globals backup {old_backup}: {e}")
 
 
 #
@@ -148,10 +156,16 @@ def main():
             return 1
 
     # Dump globals
-    globals_cmd = f"pg_dumpall -h {PG_HOST} -U {PG_USER} --globals-only > {globals_dump_file}"
-    if not shell_exec(globals_cmd, "pg_dumpall --globals-only"):
-        logging.error("Globals backup failed. Aborting backup.")
-        return 1
+    if not BACKUP_GLOBALS:
+        logging.info("Skipping globals backup as per configuration.")
+        globals_dump_file = None
+    else:
+        logging.info("Backing up PostgreSQL globals.")
+
+        globals_cmd = f"pg_dumpall -h {PG_HOST} -U {PG_USER} --globals-only > {globals_dump_file}"
+        if not shell_exec(globals_cmd, "pg_dumpall --globals-only"):
+            logging.error("Globals backup failed. Aborting backup.")
+            return 1
 
     # Check if the dump files exist and are not empty
     if not dump_file.exists() or dump_file.stat().st_size == 0:
@@ -159,9 +173,9 @@ def main():
         notify_slack(f"PostgreSQL backup failed: SQL backup is empty or missing on {hostname}")
         return 1
 
-    # Check if the globals dump file exists and is not empty
-    if not globals_dump_file.exists() or globals_dump_file.stat().st_size == 0:
-        logging.error("Backup file is empty or missing.")
+    # Check if the globals dump file exists and is not empty (only if BACKUP_GLOBALS is enabled)
+    if BACKUP_GLOBALS and (not globals_dump_file.exists() or globals_dump_file.stat().st_size == 0):
+        logging.error("Globals backup file is empty or missing.")
         notify_slack(f"PostgreSQL backup failed: SQL Globals backup is empty or missing on {hostname}")
         return 1
 
